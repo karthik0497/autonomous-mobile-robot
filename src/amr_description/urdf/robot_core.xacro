@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Include Inertial Macros and Materials -->
+  <xacro:include filename="inertial_macros.xacro"/>
+  <xacro:include filename="materials.xacro"/>
+
+  <!-- ========================================================================= -->
+  <!-- ROBOT DIMENSIONS & CONSTANTS                                              -->
+  <!-- ========================================================================= -->
+  <xacro:property name="chassis_length" value="0.30"/>   <!-- X dimension (m) -->
+  <xacro:property name="chassis_width"  value="0.30"/>   <!-- Y dimension (m) -->
+  <xacro:property name="chassis_height" value="0.10"/>   <!-- Z dimension (m) -->
+  <xacro:property name="chassis_mass"   value="2.5"/>    <!-- Mass (kg) -->
+
+  <xacro:property name="wheel_radius"   value="0.05"/>   <!-- Radius (5 cm = 0.05 m) -->
+  <xacro:property name="wheel_length"   value="0.04"/>   <!-- Thickness/width (4 cm) -->
+  <xacro:property name="wheel_mass"     value="0.2"/>    <!-- Wheel mass (kg) -->
+  <xacro:property name="wheel_offset_y" value="0.175"/>  <!-- Half-track (wheelbase/2 = 35cm/2) -->
+
+  <xacro:property name="caster_radius"  value="0.025"/>  <!-- Caster ball radius (2.5 cm) -->
+  <xacro:property name="caster_mass"    value="0.1"/>    <!-- Caster mass (kg) -->
+  <xacro:property name="caster_offset_x" value="0.22"/>  <!-- Front position along X -->
+
+  <!-- ========================================================================= -->
+  <!-- 1. BASE FOOTPRINT (TF Root on Ground)                                      -->
+  <!-- base_footprint is a 2D projection of the robot center on the ground floor.  -->
+  <!-- Standard ROS coordinate frame: Z=0 at contact plane with the floor.        -->
+  <!-- ========================================================================= -->
+  <link name="base_footprint"/>
+
+  <!-- Joint: base_footprint -> base_link -->
+  <!-- Elevates the robot coordinate origin by wheel_radius (0.05m) above ground -->
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ========================================================================= -->
+  <!-- 2. BASE LINK (Center of Drive Axle)                                       -->
+  <!-- The kinematic center of rotation for a differential-drive robot.          -->
+  <!-- X: Forward, Y: Left, Z: Up                                                -->
+  <!-- ========================================================================= -->
+  <link name="base_link"/>
+
+  <!-- ========================================================================= -->
+  <!-- 3. CHASSIS LINK                                                           -->
+  <!-- The main robot body. Offset forward so wheels sit near the rear axle.    -->
+  <!-- ========================================================================= -->
+  <joint name="chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis"/>
+    <!-- Chassis center is offset along X by 0.10m and Z by 0.05m above axle -->
+    <origin xyz="0.10 0 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="chassis">
+    <!-- Visual Geometry (Rendered in RViz / Gazebo) -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <!-- Collision Geometry (Used by Physics Engine) -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+    </collision>
+
+    <!-- Inertial Dynamics (Rigid body physics for simulation) -->
+    <xacro:inertial_box mass="${chassis_mass}" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+
+  <!-- ========================================================================= -->
+  <!-- 4. LEFT DRIVE WHEEL                                                       -->
+  <!-- Continuous rotational joint along Y-axis of base_link.                     -->
+  <!-- Cylinder in URDF defaults along Z axis, so rotated by -pi/2 around X.     -->
+  <!-- ========================================================================= -->
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel_link"/>
+    <!-- Left wheel placed at +Y (0.175m from center) -->
+    <origin xyz="0 ${wheel_offset_y} 0" rpy="-${pi/2} 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="left_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+    </collision>
+
+    <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_length}" radius="${wheel_radius}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_cylinder>
+  </link>
+
+  <!-- ========================================================================= -->
+  <!-- 5. RIGHT DRIVE WHEEL                                                      -->
+  <!-- Continuous rotational joint along Y-axis of base_link.                     -->
+  <!-- Right wheel rotated by +pi/2 around X with axis pointing outward.         -->
+  <!-- ========================================================================= -->
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel_link"/>
+    <!-- Right wheel placed at -Y (-0.175m from center) -->
+    <origin xyz="0 -${wheel_offset_y} 0" rpy="${pi/2} 0 0"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+
+  <link name="right_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+    </collision>
+
+    <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_length}" radius="${wheel_radius}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_cylinder>
+  </link>
+
+  <!-- ========================================================================= -->
+  <!-- 6. CASTER WHEEL (Front Support Ball)                                      -->
+  <!-- Spherical omnidirectional passive support to balance differential drive.   -->
+  <!-- Placed at front center (X = 0.22m).                                       -->
+  <!-- Origin Z = -0.025m so bottom of sphere touches ground at Z = 0.          -->
+  <!-- ========================================================================= -->
+  <joint name="caster_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_wheel_link"/>
+    <!-- Offset: X = front (0.22m), Y = center (0.0m), Z = -0.025m -->
+    <origin xyz="${caster_offset_x} 0 -${caster_radius}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="caster_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="${caster_radius}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="${caster_radius}"/>
+      </geometry>
+    </collision>
+
+    <xacro:inertial_sphere mass="${caster_mass}" radius="${caster_radius}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_sphere>
+  </link>
+
+  <!-- Gazebo friction parameters for caster wheel (frictionless ball) -->
+  <gazebo reference="caster_wheel_link">
+    <material>Gazebo/Black</material>
+    <mu1 value="0.001"/>
+    <mu2 value="0.001"/>
+  </gazebo>
+
+  <gazebo reference="chassis">
+    <material>Gazebo/Orange</material>
+  </gazebo>
+
+  <gazebo reference="left_wheel_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="right_wheel_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+</robot>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="amr_robot">
+
+  <!-- ========================================================================= -->
+  <!-- AUTONOMOUS MOBILE ROBOT (AMR) MASTER XACRO                                -->
+  <!-- Differential Drive: 2 Powered Wheels + 1 Passive Front Caster             -->
+  <!-- ========================================================================= -->
+
+  <!-- Include Robot Kinematic & Visual Core -->
+  <xacro:include filename="robot_core.xacro" />
+
+  <!-- Include Gazebo Harmonic Simulation Control Plugins -->
+  <xacro:include filename="gz_control.xacro" />
+
+  <!-- Include Sensors (LiDAR, Camera, IMU) -->
+  <xacro:include filename="lidar.xacro" />
+  <xacro:include filename="camera.xacro" />
+  <xacro:include filename="imu.xacro" />
+</robot>

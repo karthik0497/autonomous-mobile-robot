@@ -1,0 +1,53 @@
+# =============================================================================
+# EXTENDED KALMAN FILTER (EKF) CONFIGURATION - robot_localization
+# Fuses Wheel Odometry (/odom) + 6-DOF IMU (/imu/data)
+# =============================================================================
+
+ekf_filter_node:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: true              # True for planar ground robots (zeros z, roll, pitch)
+    transform_time_offset: 0.0
+    transform_timeout: 0.0
+    print_diagnostics: true
+    debug: false
+
+    # Coordinate Frame Setup
+    map_frame: map                # Global fixed map frame
+    odom_frame: odom              # Odometry frame
+    base_link_frame: base_footprint # Robot base frame
+    world_frame: odom             # What world_frame broadcasts (odom -> base_footprint)
+
+    publish_tf: true              # Broadcasts odom -> base_footprint transform
+    publish_acceleration: false
+
+    # -------------------------------------------------------------------------
+    # SENSOR 1: WHEEL ODOMETRY (/odom)
+    # Matrix format: [x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az]
+    # -------------------------------------------------------------------------
+    odom0: /odom
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  false, false,  # vx (linear speed forward)
+                   false, false, true,   # vyaw (rotational speed)
+                   false, false, false]
+    odom0_queue_size: 10
+    odom0_differential: false
+    odom0_relative: false
+
+    # -------------------------------------------------------------------------
+    # SENSOR 2: IMU (/imu/data)
+    # Fuses true gyroscope yaw rate and relative orientation
+    # -------------------------------------------------------------------------
+    imu0: /imu/data
+    imu0_config: [false, false, false,
+                  false, false, true,    # yaw orientation
+                  false, false, false,
+                  false, false, true,    # vyaw (gyroscope angular velocity around Z)
+                  false, false, false]
+    imu0_queue_size: 10
+    imu0_differential: false
+    imu0_relative: true                  # Relative mode prevents initial heading jump
+    imu0_remove_gravitational_acceleration: true

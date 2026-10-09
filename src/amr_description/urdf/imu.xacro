@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ========================================================================= -->
+  <!-- INERTIAL MEASUREMENT UNIT (IMU) SENSOR                                    -->
+  <!-- ========================================================================= -->
+
+  <!-- Joint: Positioned at the center of mass inside the chassis -->
+  <joint name="imu_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Physical / Virtual IMU Link -->
+  <link name="imu_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.02 0.005"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.02 0.005"/>
+      </geometry>
+    </collision>
+
+    <xacro:inertial_box mass="0.01" x="0.02" y="0.02" z="0.005">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+
+  <!-- Gazebo Harmonic IMU Sensor Simulation -->
+  <gazebo reference="imu_link">
+    <sensor name="imu" type="imu">
+      <always_on>true</always_on>
+      <update_rate>50</update_rate>
+      <topic>/imu/data</topic>
+      <gz_frame_id>imu_link</gz_frame_id>
+
+      <imu>
+        <angular_velocity>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </z>
+        </linear_acceleration>
+      </imu>
+    </sensor>
+  </gazebo>
+
+  <!-- Load IMU System Plugin in the Model -->
+  <gazebo>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
+    </plugin>
+  </gazebo>
+
+</robot>

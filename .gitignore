@@ -1,0 +1,19 @@
+# Colcon build artifacts
+build/
+install/
+log/
+.colcon/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# IDE / System
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

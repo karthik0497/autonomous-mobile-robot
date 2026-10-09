@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ========================================================================= -->
+  <!-- GAZEBO HARMONIC (GZ SIM) DIFFERENTIAL DRIVE SYSTEM PLUGIN                 -->
+  <!-- ========================================================================= -->
+
+  <gazebo>
+    <!-- Differential Drive System Plugin -->
+    <!-- Handles velocity commands on /cmd_vel and calculates odometry on /odom    -->
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <!-- Wheel Joints -->
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+
+      <!-- Kinematics Properties -->
+      <wheel_separation>0.35</wheel_separation>
+      <wheel_radius>0.05</wheel_radius>
+
+      <!-- Performance Limits -->
+      <max_linear_acceleration>1.5</max_linear_acceleration>
+      <max_angular_acceleration>3.0</max_angular_acceleration>
+      <min_velocity>-1.0</min_velocity>
+      <max_velocity>1.0</max_velocity>
+
+      <!-- Topic Configuration -->
+      <topic>/cmd_vel</topic>
+      <odom_topic>/odom</odom_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+      <odom_publisher_frequency>30</odom_publisher_frequency>
+      <!-- TF broadcast disabled in Gazebo; EKF node will broadcast odom -> base_footprint -->
+      <!-- <tf_topic>/tf</tf_topic> -->
+    </plugin>
+
+    <!-- Joint State Publisher System Plugin -->
+    <!-- Broadcasts joint angles of the wheels for visualization & transforms     -->
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/joint_states</topic>
+      <joint_name>left_wheel_joint</joint_name>
+      <joint_name>right_wheel_joint</joint_name>
+    </plugin>
+  </gazebo>
+
+</robot>

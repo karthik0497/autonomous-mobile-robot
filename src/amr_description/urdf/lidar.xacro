@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ========================================================================= -->
+  <!-- 2D LIDAR SENSOR (360 Degree Laser Scanner)                                -->
+  <!-- ========================================================================= -->
+
+  <!-- Joint: Mounted on top of the chassis -->
+  <joint name="laser_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="laser_frame"/>
+    <!-- Positioned slightly forward on the chassis top plate (z = 0.05 + 0.02 = 0.07m) -->
+    <origin xyz="0.05 0 0.07" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Physical LiDAR Link (Housing & Spinning Turret) -->
+  <link name="laser_frame">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.04" length="0.04"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.04" length="0.04"/>
+      </geometry>
+    </collision>
+
+    <xacro:inertial_cylinder mass="0.1" length="0.04" radius="0.04">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_cylinder>
+  </link>
+
+  <!-- Gazebo Harmonic Ray/Lidar Sensor Simulation -->
+  <gazebo reference="laser_frame">
+    <material>Gazebo/Black</material>
+
+    <sensor name="lidar" type="gpu_lidar">
+      <pose>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>10</update_rate>
+      <topic>/scan</topic>
+      <gz_frame_id>laser_frame</gz_frame_id>
+
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159265</min_angle>  <!-- -180 degrees -->
+            <max_angle>3.14159265</max_angle>   <!-- +180 degrees -->
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>                      <!-- 12 cm minimum blind zone -->
+          <max>12.0</max>                      <!-- 12 meters maximum range -->
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>                <!-- 1 cm realistic measurement noise -->
+        </noise>
+      </lidar>
+    </sensor>
+  </gazebo>
+
+</robot>
